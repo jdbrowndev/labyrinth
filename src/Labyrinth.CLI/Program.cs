@@ -1,2 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Labyrinth.CLI;
+using Labyrinth.Generator;
+
+var generator = new DungeonGenerator();
+var dungeon = generator.Generate();
+
+var printer = new DungeonPrinter();
+printer.Print(dungeon, "output.txt");

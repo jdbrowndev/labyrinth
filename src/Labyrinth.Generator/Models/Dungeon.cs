@@ -2,24 +2,18 @@
 
 public class Dungeon
 {
-	private readonly int _sizeX;
-	private readonly int _sizeY;
-	private readonly Room[,] _grid;
+	private readonly Tile[,] _tiles;
 
-	public Dungeon(int sizeX, int sizeY)
+	public Dungeon(Tile[,] tiles)
 	{
-		_sizeX = sizeX;
-		_sizeY = sizeY;
-		_grid = new Room[sizeX, sizeY];
+		_tiles = tiles;
 	}
 
-	public Room GetRoom(Position position)
-	{
-		return _grid[position.X, position.Y];
-	}
+	public int DimensionX => _tiles.GetLength(0);
+	public int DimensionY => _tiles.GetLength(1);
 
-	public void AddRoom(Room room)
+	public Tile GetTile(Position position)
 	{
-		// todo - ensure no overlaps, then add the room in
+		return _tiles[position.X, position.Y];
 	}
 }
