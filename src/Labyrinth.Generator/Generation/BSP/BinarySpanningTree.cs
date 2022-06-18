@@ -17,14 +17,20 @@ public class BinarySpanningTree
 		_random = random;
 	}
 
-	public Tile[,] Generate()
+	public Tile[,] Grid { get; private set; }
+	public Node Root { get; private set; }
+
+	public void Generate()
 	{
-		var grid = new Tile[_dimensionX, _dimensionY];
+		if (Root != null)
+			throw new InvalidOperationException("Tree already generated");
+
+		Grid = new Tile[_dimensionX, _dimensionY];
 		var space = new Rectangle(new Position(0, 0), new Position(_dimensionX - 1, _dimensionY - 1));
-		var root = new Node(null, space, grid, _random);
+		Root = new Node(null, space, Grid, _random);
 
 		var currentNodes = new Queue<Node>();
-		currentNodes.Enqueue(root);
+		currentNodes.Enqueue(Root);
 		var nextNodes = new Queue<Node>();
 		for (var level = 1; level <= _maxPartitioning; level++)
 		{
@@ -65,7 +71,5 @@ public class BinarySpanningTree
 			currentNodes = nextNodes;
 			nextNodes = new Queue<Node>();
 		}
-
-		return grid;
 	}
 }

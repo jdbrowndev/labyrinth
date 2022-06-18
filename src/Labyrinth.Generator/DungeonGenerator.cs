@@ -9,8 +9,9 @@ public class DungeonGenerator
 	{
 		var random = seed.HasValue ? new Random(seed.Value) : new Random();
 		var tree = new BinarySpanningTree(dimensionX, dimensionY, partitioning, random);
-		var tiles = tree.Generate();
-		var dungeon = new Dungeon(tiles);
+		tree.Generate();
+		
+		var dungeon = new Dungeon(tree.Grid);
 		return dungeon;
 	}
 }
