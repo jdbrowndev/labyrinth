@@ -25,8 +25,8 @@ public class Node
 	{
 		var diffX = Space.BottomRight.X - Space.TopLeft.X;
 		var borderX = Space.TopLeft.X + diffX / 2;
-		var leftSpace = new Rectangle(Space.TopLeft, new Position(borderX, Space.BottomRight.Y));
-		var rightSpace = new Rectangle(new Position(borderX, Space.TopLeft.Y), Space.BottomRight);
+		var leftSpace = Space with { BottomRight = Space.BottomRight with { X = borderX } };
+		var rightSpace = Space with { TopLeft = Space.TopLeft with { X = borderX } };
 
 		Left = new Node(this, leftSpace, _grid, _random);
 		Right = new Node(this, rightSpace, _grid, _random);
@@ -36,8 +36,8 @@ public class Node
 	{
 		var diffY = Space.BottomRight.Y - Space.TopLeft.Y;
 		var borderY = Space.TopLeft.Y + diffY / 2;
-		var topSpace = new Rectangle(Space.TopLeft, new Position(Space.BottomRight.X, borderY));
-		var bottomSpace = new Rectangle(new Position(Space.TopLeft.X, borderY), Space.BottomRight);
+		var topSpace = Space with { BottomRight = Space.BottomRight with { Y = borderY } };
+		var bottomSpace = Space with { TopLeft = Space.TopLeft with { Y = borderY } };
 
 		Left = new Node(this, topSpace, _grid, _random);
 		Right = new Node(this, bottomSpace, _grid, _random);
