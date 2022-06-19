@@ -4,10 +4,10 @@ public record Rectangle
 {
 	public Rectangle(Position topLeft, Position bottomRight)
 	{
+		Validate(topLeft, bottomRight);
+
 		_topLeft = topLeft;
 		_bottomRight = bottomRight;
-
-		Validate();
 	}
 
 	private Position _topLeft;
@@ -17,8 +17,8 @@ public record Rectangle
 		
 		init
 		{
+			Validate(value, _bottomRight);
 			_topLeft = value;
-			Validate();
 		}
 	}
 
@@ -29,17 +29,18 @@ public record Rectangle
 
 		init
 		{
+			Validate(_topLeft, value);
 			_bottomRight = value;
-			Validate();
 		}
 	}
 
-	private void Validate()
+	private void Validate(Position topLeft, Position bottomRight)
 	{
-		if (_bottomRight.X < _topLeft.X || _bottomRight.Y < _topLeft.Y)
+		if (bottomRight.X < topLeft.X || bottomRight.Y < topLeft.Y)
 			throw new ArgumentException("Rectangle has invalid dimensions");
 	}
 
+	// todo is this method needed?
 	public bool Overlaps(Rectangle other)
 	{
 		if (TopLeft.X > other.BottomRight.X || other.TopLeft.X > BottomRight.X)
