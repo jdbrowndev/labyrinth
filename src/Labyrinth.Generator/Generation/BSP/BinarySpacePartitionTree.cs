@@ -2,14 +2,14 @@
 
 namespace Labyrinth.Generator.Generation.BSP;
 
-public class BinarySpanningTree
+public class BinarySpacePartitionTree
 {
 	private readonly int _dimensionX;
 	private readonly int _dimensionY;
 	private readonly int _maxPartitioning;
 	private readonly Random _random;
 
-	public BinarySpanningTree(int dimensionX, int dimensionY, int partitioning, Random random)
+	public BinarySpacePartitionTree(int dimensionX, int dimensionY, int partitioning, Random random)
 	{
 		_dimensionX = dimensionX;
 		_dimensionY = dimensionY;
