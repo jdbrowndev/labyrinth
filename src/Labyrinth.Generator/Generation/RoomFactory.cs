@@ -17,7 +17,13 @@ public static class RoomFactory
 				var bottom = y == dimensionY - 1 ? TileSide.Wall : TileSide.Empty;
 				var left = x == 0 ? TileSide.Wall : TileSide.Empty;
 
-				var tile = new Tile(top, right, bottom, left);
+				var tile = new Tile
+				{
+					Top = top,
+					Right = right,
+					Bottom = bottom,
+					Left = left
+				};
 				tiles[x, y] = tile;
 			}
 		}

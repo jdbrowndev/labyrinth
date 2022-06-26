@@ -22,6 +22,11 @@ public record Rectangle
 		}
 	}
 
+	public Position TopRight
+	{
+		get => new Position(BottomRight.X, TopLeft.Y);
+	}
+
 	private Position _bottomRight;
 	public Position BottomRight
 	{
@@ -34,8 +39,19 @@ public record Rectangle
 		}
 	}
 
+	public Position BottomLeft
+	{
+		get => new Position(TopLeft.X, BottomRight.Y);
+	}
+
 	private void Validate(Position topLeft, Position bottomRight)
 	{
+		if (topLeft == null)
+			throw new ArgumentException("Rectangle top left position is required");
+
+		if (bottomRight == null)
+			throw new ArgumentException("Rectangle bottom right position is required");
+
 		if (bottomRight.X < topLeft.X || bottomRight.Y < topLeft.Y)
 			throw new ArgumentException("Rectangle has invalid dimensions");
 	}

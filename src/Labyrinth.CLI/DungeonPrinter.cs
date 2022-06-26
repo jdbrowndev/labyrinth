@@ -24,14 +24,14 @@ public class DungeonPrinter
 				current = dungeon.GetTile(new Position(x, y));
 				if (current == null)
 					writer.Write(' ');
+				else if (HasDoor(current.Top, current.Right, current.Bottom, current.Left))
+					writer.Write('D');
 				else if (HasWall(current.Left, current.Right) && !HasWall(current.Top, current.Bottom))
 					writer.Write('|');
 				else if (!HasWall(current.Left, current.Right) && HasWall(current.Top, current.Bottom))
 					writer.Write('-');
 				else if (HasWall(current.Left, current.Right) && HasWall(current.Top, current.Bottom))
 					writer.Write('+');
-				else if (HasDoor(current.Top, current.Right, current.Bottom, current.Left))
-					writer.Write('D');
 				else
 					writer.Write(' ');
 			}

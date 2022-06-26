@@ -2,7 +2,7 @@
 
 public enum TileSide
 {
-	Empty,
-	Wall,
-	Door
+	Empty = 0,
+	Wall = 1,
+	Door = 2
 }

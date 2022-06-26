@@ -37,11 +37,13 @@ public class BinarySpanningTree
 			while (currentNodes.Any())
 			{
 				var node = currentNodes.Dequeue();
-				var direction = _random.Next(2);
 
-				if (direction == 0)
-					node.PartitionByX();
-				else
+				// todo re-enable x partition
+				//var direction = _random.Next(2);
+
+				//if (direction == 0)
+					//node.PartitionByX();
+				//else
 					node.PartitionByY();
 
 				nextNodes.Enqueue(node.Left);
@@ -63,13 +65,17 @@ public class BinarySpanningTree
 					left.GenerateRoom();
 					right.GenerateRoom();
 				}
-
-				// todo connect left to right
+				else
+				{
+					left.ConnectChildRooms();
+					right.ConnectChildRooms();
+				}
 
 				nextNodes.Enqueue(left.Parent);
 			}
 			currentNodes = nextNodes;
 			nextNodes = new Queue<Node>();
 		}
+		Root.ConnectChildRooms();
 	}
 }

@@ -26,6 +26,22 @@ public class The_Rectangle_Record
 		_ = rect2 with { TopLeft = new Position(x1 + 1, y1 + 1) };
 	}
 
+	[Fact]
+	public void Should_Calculate_TopRight_And_BottomLeft_Correctly()
+	{
+		var rect = new Rectangle(new Position(0, 0), new Position(1, 1));
+
+		Assert.Equal(new Position(1, 0), rect.TopRight);
+		Assert.Equal(new Position(0, 1), rect.BottomLeft);
+	}
+
+	[Fact]
+	public void Should_Throw_Exception_If_Dimensions_Null()
+	{
+		Assert.Throws<ArgumentException>(() => new Rectangle(new Position(0, 0), null));
+		Assert.Throws<ArgumentException>(() => new Rectangle(null, new Position(1, 1)));
+	}
+
 	[Theory]
 	[InlineData(1, 0, 0, 0)]
 	[InlineData(0, 1, 0, 0)]
