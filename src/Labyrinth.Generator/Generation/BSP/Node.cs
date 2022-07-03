@@ -61,14 +61,14 @@ public class Node
 			throw new ArgumentException("Room already generated");
 
 		// room can fill space but must leave at least two empty rows and two empty columns
-		var maxDimensionX = Space.BottomRight.X - Space.TopLeft.X;
-		var maxDimensionY = Space.BottomRight.Y - Space.TopLeft.Y;
+		var maxDimensionX = Space.BottomRight.X - Space.TopLeft.X - 1;
+		var maxDimensionY = Space.BottomRight.Y - Space.TopLeft.Y - 1;
 		var dimensionX = _random.Next(2, maxDimensionX);
 		var dimensionY = _random.Next(2, maxDimensionY);
 		var roomTiles = RoomFactory.GetEmpty(dimensionX, dimensionY);
 
-		var tileStartX = _random.Next(Space.TopLeft.X, Space.BottomRight.X - dimensionX);
-		var tileStartY = _random.Next(Space.TopLeft.Y, Space.BottomRight.Y - dimensionY);
+		var tileStartX = _random.Next(Space.TopLeft.X, Space.BottomRight.X - dimensionX - 1);
+		var tileStartY = _random.Next(Space.TopLeft.Y, Space.BottomRight.Y - dimensionY - 1);
 
 		Position roomTopLeft = null;
 		Position roomBottomRight = null;
@@ -97,127 +97,92 @@ public class Node
 		if (IsLeaf)
 			throw new ArgumentException("Cannot connect child rooms on a leaf node");
 
-		var leftRooms = GetRoomsRecursive(Left);
-		var rightRooms = GetRoomsRecursive(Right);
-
 		if (IsPartitionedByX)
-		{
-			// todo handle case
-			return;
-		}
+			ConnectChildRoomsPartitionedByX();
 		else
+			ConnectChildRoomsPartitionedByY();
+	}
+
+	private void ConnectChildRoomsPartitionedByX()
+	{
+		// todo implement
+	}
+
+	private void ConnectChildRoomsPartitionedByY()
+	{
+		var topRoom = GetRoomsRecursive(Left).MaxBy(x => x.BottomRight.Y);
+		var bottomRoom = GetRoomsRecursive(Right).MinBy(x => x.TopLeft.Y);
+
+		var topDoor = new Position(_random.Next(topRoom.BottomLeft.X, topRoom.BottomRight.X + 1), topRoom.BottomRight.Y);
+		_grid[topDoor.X, topDoor.Y].Bottom = TileSide.Door;
+
+		var bottomDoor = new Position(_random.Next(bottomRoom.TopLeft.X, bottomRoom.TopRight.X + 1), bottomRoom.TopLeft.Y);
+		_grid[bottomDoor.X, bottomDoor.Y].Top = TileSide.Door;
+
+		var targetPosition = bottomDoor with { Y = bottomDoor.Y - 1 };
+
+		var prevPosition = topDoor with { Y = topDoor.Y + 1 };
+		var prevPositionDown = true;
+		var prevPositionRight = false;
+		var prevPositionLeft = false;
+
+		var prevTile = new Tile { Top = TileSide.Door };
+		_grid[prevPosition.X, prevPosition.Y] = prevTile;
+
+		while (prevPosition != targetPosition)
 		{
-			var topRoom = leftRooms.MaxBy(x => x.BottomRight.Y);
-			var bottomRoom = rightRooms.MinBy(x => x.TopLeft.Y);
+			var moveX = prevPosition.X != targetPosition.X;
+			var moveY = prevPosition.Y != targetPosition.Y;
 
-			var topDoor = new Position(_random.Next(topRoom.BottomLeft.X, topRoom.BottomRight.X + 1), topRoom.BottomRight.Y);
-			_grid[topDoor.X, topDoor.Y].Bottom = TileSide.Door;
-
-			var bottomDoor = new Position(_random.Next(bottomRoom.TopLeft.X, bottomRoom.TopRight.X + 1), bottomRoom.TopLeft.Y);
-			_grid[bottomDoor.X, bottomDoor.Y].Top = TileSide.Door;
-
-			var targetPosition = bottomDoor with { Y = bottomDoor.Y - 1 };
-			var targetTile = new Tile { Bottom = TileSide.Door };
-			_grid[targetPosition.X, targetPosition.Y] = targetTile;
-
-			var prevPosition = topDoor with { Y = topDoor.Y + 1 };
-			var prevPositionDown = true;
-			var prevPositionRight = false;
-			var prevPositionLeft = false;
-
-			var prevTile = new Tile { Top = TileSide.Door };
-			_grid[prevPosition.X, prevPosition.Y] = prevTile;
-
-			while (prevPosition != targetPosition)
+			if (moveX && moveY)
 			{
-				var moveX = prevPosition.X != targetPosition.X;
-				var moveY = prevPosition.Y != targetPosition.Y;
+				moveX = _random.Next(2) == 0;
+			}
 
-				if (moveX && moveY)
+			Position nextPosition;
+			Tile nextTile;
+			if (moveX)
+			{
+				if (targetPosition.X - prevPosition.X > 0)
 				{
-					moveX = _random.Next(2) == 0;
-				}
-				
-				Position nextPosition;
-				Tile nextTile;
-				if (moveX)
-				{
-					if (targetPosition.X - prevPosition.X > 0)
+					// move right
+					nextPosition = prevPosition with { X = prevPosition.X + 1 };
+
+					// fix prevTile
+					prevTile.Bottom = TileSide.Wall;
+					if (prevPositionRight)
+						prevTile.Top = TileSide.Wall;
+					if (prevPositionDown)
+						prevTile.Left = TileSide.Wall;
+
+					// set next tile
+					if (nextPosition == targetPosition)
 					{
-						// move right
-						nextPosition = prevPosition with { X = prevPosition.X + 1 };
-
-						// fix prevTile
-						if (!prevPositionDown && prevTile.Top == TileSide.Empty)
-							prevTile.Top = TileSide.Wall;
-						if (prevTile.Bottom == TileSide.Empty)
-							prevTile.Bottom = TileSide.Wall;
-						if (prevPositionDown && prevTile.Left == TileSide.Empty)
-							prevTile.Left = TileSide.Wall;
-
-						// set next tile
-						if (nextPosition == targetPosition)
+						nextTile = new Tile
 						{
-							nextTile = new Tile
-							{
-								Top = TileSide.Wall,
-								Right = TileSide.Wall,
-								Bottom = TileSide.Door
-							};
-						}
-						else
-						{
-							nextTile = new Tile { Top = TileSide.Wall };
-						}
-
-						prevPositionRight = true;
-						prevPositionLeft = false;
+							Top = TileSide.Wall,
+							Right = TileSide.Wall,
+							Bottom = TileSide.Door
+						};
 					}
 					else
 					{
-						// move left
-						nextPosition = prevPosition with { X = prevPosition.X - 1 };
-
-						// fix prevTile
-						if (!prevPositionDown && prevTile.Top == TileSide.Empty)
-							prevTile.Top = TileSide.Wall;
-						if (prevTile.Bottom == TileSide.Empty)
-							prevTile.Bottom = TileSide.Wall;
-						if (prevPositionDown && prevTile.Right == TileSide.Empty)
-							prevTile.Right = TileSide.Wall;
-
-						// set next tile
-						if (nextPosition == targetPosition)
-						{
-							nextTile = new Tile
-							{
-								Top = TileSide.Wall,
-								Left = TileSide.Wall,
-								Bottom = TileSide.Door
-							};
-						}
-						else
-						{
-							nextTile = new Tile { Top = TileSide.Wall };
-						}
-
-						prevPositionRight = false;
-						prevPositionLeft = true;
+						nextTile = new Tile { Top = TileSide.Wall };
 					}
 
-					prevPositionDown = false;
+					prevPositionRight = true;
+					prevPositionLeft = false;
 				}
-				else // moveY
+				else
 				{
-					// move down
-					nextPosition = prevPosition with { Y = prevPosition.Y + 1 };
+					// move left
+					nextPosition = prevPosition with { X = prevPosition.X - 1 };
 
 					// fix prevTile
-					if (!prevPositionDown && prevTile.Top == TileSide.Empty)
+					prevTile.Bottom = TileSide.Wall;
+					if (prevPositionLeft)
 						prevTile.Top = TileSide.Wall;
-					if (!prevPositionRight && prevTile.Left == TileSide.Empty)
-						prevTile.Left = TileSide.Wall;
-					if (!prevPositionLeft && prevTile.Right== TileSide.Empty)
+					if (prevPositionDown)
 						prevTile.Right = TileSide.Wall;
 
 					// set next tile
@@ -225,25 +190,56 @@ public class Node
 					{
 						nextTile = new Tile
 						{
+							Top = TileSide.Wall,
 							Left = TileSide.Wall,
-							Right = TileSide.Wall,
 							Bottom = TileSide.Door
 						};
 					}
 					else
 					{
-						nextTile = new Tile { Left = TileSide.Wall, Right = TileSide.Wall };
+						nextTile = new Tile { Top = TileSide.Wall };
 					}
 
-					prevPositionDown = true;
 					prevPositionRight = false;
-					prevPositionLeft = false;
+					prevPositionLeft = true;
 				}
 
-				_grid[nextPosition.X, nextPosition.Y] = nextTile;
-				prevPosition = nextPosition;
-				prevTile = nextTile;
+				prevPositionDown = false;
 			}
+			else // moveY
+			{
+				// move down
+				nextPosition = prevPosition with { Y = prevPosition.Y + 1 };
+
+				// fix prevTile
+				if (prevPositionDown || prevPositionLeft)
+					prevTile.Left = TileSide.Wall;
+				if (prevPositionDown || prevPositionRight)
+					prevTile.Right = TileSide.Wall;
+
+				// set next tile
+				if (nextPosition == targetPosition)
+				{
+					nextTile = new Tile
+					{
+						Left = TileSide.Wall,
+						Right = TileSide.Wall,
+						Bottom = TileSide.Door
+					};
+				}
+				else
+				{
+					nextTile = new Tile();
+				}
+
+				prevPositionDown = true;
+				prevPositionRight = false;
+				prevPositionLeft = false;
+			}
+
+			_grid[nextPosition.X, nextPosition.Y] = nextTile;
+			prevPosition = nextPosition;
+			prevTile = nextTile;
 		}
 	}
 
