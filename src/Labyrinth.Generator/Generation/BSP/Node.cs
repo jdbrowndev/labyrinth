@@ -105,7 +105,137 @@ public class Node
 
 	private void ConnectChildRoomsPartitionedByX()
 	{
-		// todo implement
+		var leftRoom = GetRoomsRecursive(Left).MaxBy(x => x.BottomRight.X);
+		var rightRoom = GetRoomsRecursive(Right).MinBy(x => x.TopLeft.X);
+
+		var leftDoor = new Position(leftRoom.TopRight.X, _random.Next(leftRoom.TopRight.Y, leftRoom.BottomRight.Y + 1));
+		_grid[leftDoor.X, leftDoor.Y].Right = TileSide.Door;
+
+		var rightDoor = new Position(rightRoom.TopLeft.X, _random.Next(rightRoom.TopLeft.Y, rightRoom.BottomLeft.Y + 1));
+		_grid[rightDoor.X, rightDoor.Y].Left = TileSide.Door;
+
+		var targetPosition = rightDoor with { X = rightDoor.X - 1 };
+
+		var prevPosition = leftDoor with { X = leftDoor.X + 1 };
+		var prevPositionRight = true;
+		var prevPositionDown = false;
+		var prevPositionUp = false;
+
+		var prevTile = new Tile { Left = TileSide.Door };
+		_grid[prevPosition.X, prevPosition.Y] = prevTile;
+
+		while (prevPosition != targetPosition)
+		{
+			var moveX = prevPosition.X != targetPosition.X;
+			var moveY = prevPosition.Y != targetPosition.Y;
+
+			if (moveX && moveY)
+			{
+				moveX = _random.Next(2) == 0;
+			}
+
+			Position nextPosition;
+			Tile nextTile;
+			if (moveX)
+			{
+				// move right
+				nextPosition = prevPosition with { X = prevPosition.X + 1 };
+
+				// fix prevTile
+				if (prevPositionRight || prevPositionUp)
+					prevTile.Top = TileSide.Wall;
+				if (prevPositionRight || prevPositionDown)
+					prevTile.Bottom = TileSide.Wall;
+
+				// set next tile
+				if (nextPosition == targetPosition)
+				{
+					nextTile = new Tile
+					{
+						Top = TileSide.Wall,
+						Bottom = TileSide.Wall,
+						Right = TileSide.Door
+					};
+				}
+				else
+				{
+					nextTile = new Tile();
+				}
+
+				prevPositionRight = true;
+				prevPositionDown = false;
+				prevPositionUp = false;
+			}
+			else // moveY
+			{
+				if (targetPosition.Y - prevPosition.Y > 0)
+				{
+					// move down
+					nextPosition = prevPosition with { Y = prevPosition.Y + 1 };
+
+					// fix prevTile
+					prevTile.Right = TileSide.Wall;
+					if (prevPositionDown)
+						prevTile.Left = TileSide.Wall;
+					if (prevPositionRight)
+						prevTile.Top = TileSide.Wall;
+
+					// set next tile
+					if (nextPosition == targetPosition)
+					{
+						nextTile = new Tile
+						{
+							Left = TileSide.Wall,
+							Bottom = TileSide.Wall,
+							Right = TileSide.Door
+						};
+					}
+					else
+					{
+						nextTile = new Tile { Left = TileSide.Wall };
+					}
+
+					prevPositionDown = true;
+					prevPositionUp = false;
+				}
+				else
+				{
+					// move up
+					nextPosition = prevPosition with { Y = prevPosition.Y - 1 };
+
+					// fix prevTile
+					prevTile.Right = TileSide.Wall;
+					if (prevPositionUp)
+						prevTile.Left = TileSide.Wall;
+					if (prevPositionRight)
+						prevTile.Bottom = TileSide.Wall;
+
+					// set next tile
+					if (nextPosition == targetPosition)
+					{
+						nextTile = new Tile
+						{
+							Left = TileSide.Wall,
+							Top = TileSide.Wall,
+							Right = TileSide.Door
+						};
+					}
+					else
+					{
+						nextTile = new Tile { Left = TileSide.Wall };
+					}
+
+					prevPositionDown = false;
+					prevPositionUp = true;
+				}
+
+				prevPositionRight = false;
+			}
+
+			_grid[nextPosition.X, nextPosition.Y] = nextTile;
+			prevPosition = nextPosition;
+			prevTile = nextTile;
+		}
 	}
 
 	private void ConnectChildRoomsPartitionedByY()

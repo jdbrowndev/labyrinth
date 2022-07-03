@@ -38,12 +38,11 @@ public class BinarySpacePartitionTree
 			{
 				var node = currentNodes.Dequeue();
 
-				// todo re-enable x partition
-				//var direction = _random.Next(2);
+				var direction = _random.Next(2);
 
-				//if (direction == 0)
-					//node.PartitionByX();
-				//else
+				if (direction == 0)
+					node.PartitionByX();
+				else
 					node.PartitionByY();
 
 				nextNodes.Enqueue(node.Left);
