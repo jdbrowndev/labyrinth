@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Labyrinth.CLI/Labyrinth.CLI.csproj" />
+    <Project Path="src/Labyrinth.Generator/Labyrinth.Generator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Labyrinth.Generator.Tests/Labyrinth.Generator.Tests.csproj" />
+  </Folder>
+</Solution>
